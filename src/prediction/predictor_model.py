@@ -15,13 +15,13 @@ PREDICTOR_FILE_NAME = "predictor.joblib"
 
 
 class Classifier:
-    """A wrapper class for the k-Nearest Neighbor binary classifier.
+    """A wrapper class for the k-Nearest Neighbor classifier.
 
     This class provides a consistent interface that can be used with other
     classifier models.
     """
 
-    model_name = "k-Nearest Neighbor Binary Classifier"
+    model_name = "k-Nearest Neighbor Classifier"
 
     def __init__(
         self,
@@ -31,7 +31,7 @@ class Classifier:
         leaf_size: Optional[int] = 5,
         **kwargs,
     ):
-        """Construct a new k-Nearest Neighbor binary classifier.
+        """Construct a new k-Nearest Neighbor classifier.
 
         Args:
             n_neighbors (int, optional): Number of neighbors to use by default
@@ -55,7 +55,7 @@ class Classifier:
         self._is_trained = False
 
     def build_model(self) -> KNeighborsClassifier:
-        """Build a new binary classifier."""
+        """Build a new classifier."""
         model = KNeighborsClassifier(
             n_neighbors=self.n_neighbors,
             weights=self.weights,
@@ -65,7 +65,7 @@ class Classifier:
         return model
 
     def fit(self, train_inputs: pd.DataFrame, train_targets: pd.Series) -> None:
-        """Fit the binary classifier to the training data.
+        """Fit the classifier to the training data.
 
         Args:
             train_inputs (pandas.DataFrame): The features of the training data.
@@ -82,7 +82,7 @@ class Classifier:
         Returns:
             numpy.ndarray: The predicted class labels.
         """
-        return self.model.predict(inputs)
+        return self.model.predict(inputs.values)
 
     def predict_proba(self, inputs: pd.DataFrame) -> np.ndarray:
         """Predict class probabilities for the given data.
@@ -92,23 +92,23 @@ class Classifier:
         Returns:
             numpy.ndarray: The predicted class probabilities.
         """
-        return self.model.predict_proba(inputs)
+        return self.model.predict_proba(inputs.values)
 
     def evaluate(self, test_inputs: pd.DataFrame, test_targets: pd.Series) -> float:
-        """Evaluate the binary classifier and return the accuracy.
+        """Evaluate the classifier and return the accuracy.
 
         Args:
             test_inputs (pandas.DataFrame): The features of the test data.
             test_targets (pandas.Series): The labels of the test data.
         Returns:
-            float: The accuracy of the binary classifier.
+            float: The accuracy of the classifier.
         """
         if self.model is not None:
-            return self.model.score(test_inputs, test_targets)
+            return self.model.score(test_inputs.values, test_targets.values)
         raise NotFittedError("Model is not fitted yet.")
 
     def save(self, model_dir_path: str) -> None:
-        """Save the binary classifier to disk.
+        """Save the classifier to disk.
 
         Args:
             model_dir_path (str): Dir path to which to save the model.
@@ -119,23 +119,24 @@ class Classifier:
 
     @classmethod
     def load(cls, model_dir_path: str) -> "Classifier":
-        """Load the binary classifier from disk.
+        """Load the classifier from disk.
 
         Args:
             model_dir_path (str): Dir path to the saved model.
         Returns:
-            Classifier: A new instance of the loaded binary classifier.
+            Classifier: A new instance of the loaded classifier.
         """
         model = joblib.load(os.path.join(model_dir_path, PREDICTOR_FILE_NAME))
         return model
 
     def __str__(self):
+        # sort params alphabetically for unit test to run successfully
         return (
-            f"Model name: {self.model_name}\n"
-            f"n_neighbors: {self.n_neighbors}\n"
-            f"weights: {self.weights}\n"
-            f"p: {self.p}"
-            f"leaf_size: {self.leaf_size}\n"
+            f"Model name: {self.model_name} ("
+            f"leaf_size: {self.leaf_size}, "
+            f"n_neighbors: {self.n_neighbors}, "
+            f"p: {self.p}, "
+            f"weights: {self.weights})"
         )
 
 

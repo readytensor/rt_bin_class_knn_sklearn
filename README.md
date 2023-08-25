@@ -11,7 +11,7 @@ The following are the requirements for using your data with this model:
 Here are the highlights of this implementation: <br/>
 - A flexible preprocessing pipeline built using **SciKit-Learn** and **feature-engine**. Transformations include missing value imputation, categorical encoding, outlier removal, feature selection, and feature scaling. <br/>
 - A **k-Nearest Neighbor Classifier** algorithm built using **SciKit-Learn**
-- Hyperparameter-tuning using **scikit-optimize**
+- Hyperparameter-tuning using **Optuna**
 - SHAP explainer using the **shap** package
 - **FASTAPI** inference service for online inferences.
 Additionally, the implementation contains the following features:
@@ -22,53 +22,6 @@ Additionally, the implementation contains the following features:
 - **Test automation**: Tox is used for test automation.
 ## Project Structure
 The following is the directory structure of the project:
-```txt
-project_repo/
-├── examples/
-├── model_inputs_outputs/
-│   ├── inputs/
-│   │   ├── data/
-│   │   │   ├── testing/
-│   │   │   └── training/
-│   │   └── schema/
-│   ├── model/
-│   │   └── artifacts/
-│   └── outputs/
-│       ├── errors/
-│       ├── hpt_outputs/
-│       └── predictions/
-├── requirements/
-│   ├── requirements.txt
-│   └── requirements_quality.txt
-│   └── requirements_test.txt
-├── src/
-│   ├── config/
-│   ├── data_models/
-│   ├── hyperparameter_tuning/
-│   ├── prediction/
-│   ├── preprocessing/
-│   ├── schema/
-│   └── xai/
-├── tests/
-│   ├── integration_tests/
-│   ├── performance_tests/
-│   ├── test_results/
-│   │   ├── coverage_tests/
-│   │   └── performance_tests/
-│   └── unit_tests/
-│       ├── (mirrors /src structure)
-│       └── ...
-├── tmp/
-├── .dockerignore
-├── .gitignore
-├── docker-compose.yaml
-├── Dockerfile
-├── entrypoint.sh
-├── LICENSE
-├── pytest.ini
-├── README.md
-└── tox.ini
-```
 - **`examples/`**: This directory contains example files for the titanic dataset. Three files are included: `titanic_schema.json`, `titanic_train.csv` and `titanic_test.csv`. You can place these files in the `inputs/schema`, `inputs/data/training` and `inputs/data/testing` folders, respectively.
 - **`model_inputs_outputs/`**: This directory contains files that are either inputs to, or outputs from, the model. When running the model locally (i.e. without using docker), this directory is used for model inputs and outputs. This directory is further divided into:
   - **`/inputs/`**: This directory contains all the input files for this project, including the `data` and `schema` files. The `data` is further divided into `testing` and `training` subsets.
@@ -84,7 +37,7 @@ project_repo/
   - **`schema/`**: for schema handler script. This script contains the class that provides helper getters/methods for the data schema.
   - **`preprocessing/`**: for data preprocessing scripts including the feature and target encoding/transformations. We use **Scikit-Learn** and **feature-engine** for preprocessing.
   - **`prediction/`**: Scripts for the k-Nearest Neighbor classifier model implemented using **Scikit-Learn** library.
-  - **`hyperparameter_tuning/`**: for hyperparameter-tuning (HPT) functionality implemented using **Scikit-Optimize** for the model.
+  - **`hyperparameter_tuning/`**: for hyperparameter-tuning (HPT) functionality implemented using **Optuna** for the model.
   - **`xai/`**: for explainable AI functionality implemented using **Shap** library. This provides local explanations for predictions.
   - **`serve.py`**: This script is used to serve the model as a REST API using **FastAPI**. It loads the artifacts and creates a FastAPI server to serve the model. It provides 3 endpoints: `/ping`, `/infer`, and `/explain`. The `/ping` endpoint is used to check if the server is running. The `/infer` endpoint is used to make predictions. The `/explain` endpoint is used to get local explanations for the predictions.
   - **`serve_utils.py`**: This script contains utility functions used by the `serve.py` script.
@@ -266,7 +219,7 @@ To run tests using pytest, first create a virtual environment and install the de
 - `requirements_test.txt`: for test dependencies
 - `requirements_quality.txt`: for dependencies related to code quality (formatting, linting, complexity, etc.)
 Once you have the dependencies installed, you can run the tests using the following command from the root of your project directory:
-```
+```bash
 # Run all tests
 pytest
 # or, to run tests in a specific directory
@@ -291,4 +244,3 @@ Alternatively, you can let tox handle the installation of test dependencies for 
 This project is provided under the MIT License. Please see the [LICENSE](LICENSE) file for more information.
 ## Contact Information
 Repository created by Ready Tensor, Inc. (https://www.readytensor.ai/)
-with Shapley Explanations

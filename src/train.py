@@ -114,13 +114,13 @@ def run_training(
             data_schema, train_split_with_nulls, preprocessing_config
         )
         transformed_train_inputs, transformed_train_targets = transform_data(
-            pipeline, target_encoder, train_split
+            pipeline, target_encoder, train_split_with_nulls
         )
-        transformed_val_inputs, transformed_val_labels = transform_data(
+        transformed_val_inputs, transformed_val_targets = transform_data(
             pipeline, target_encoder, val_split
         )
         logger.info("Handling class imbalance...")
-        balanced_train_inputs, balanced_train_labels = handle_class_imbalance(
+        balanced_train_inputs, balanced_train_targets = handle_class_imbalance(
             transformed_train_inputs, transformed_train_targets
         )
         logger.info("Saving pipeline and label encoder...")
@@ -133,9 +133,9 @@ def run_training(
             logger.info("Tuning hyperparameters...")
             tuned_hyperparameters = tune_hyperparameters(
                 train_X=balanced_train_inputs,
-                train_y=balanced_train_labels,
+                train_y=balanced_train_targets,
                 valid_X=transformed_val_inputs,
-                valid_y=transformed_val_labels,
+                valid_y=transformed_val_targets,
                 hpt_results_dir_path=hpt_results_dir_path,
                 is_minimize=False,
                 default_hyperparameters_file_path=default_hyperparameters_file_path,
@@ -144,17 +144,17 @@ def run_training(
             logger.info("Training classifier...")
             predictor = train_predictor_model(
                 balanced_train_inputs,
-                balanced_train_labels,
+                balanced_train_targets,
                 hyperparameters=tuned_hyperparameters,
             )
         else:
-            # uses default hyperparameters to train model
+            # use default hyperparameters to train model
             logger.info("Training classifier...")
             default_hyperparameters = read_json_as_dict(
                 default_hyperparameters_file_path
             )
             predictor = train_predictor_model(
-                balanced_train_inputs, balanced_train_labels, default_hyperparameters
+                balanced_train_inputs, balanced_train_targets, default_hyperparameters
             )
 
         # save predictor model
@@ -164,7 +164,7 @@ def run_training(
         # calculate and print validation accuracy
         logger.info("Calculating accuracy on validation data...")
         val_accuracy = evaluate_predictor_model(
-            predictor, transformed_val_inputs, transformed_val_labels
+            predictor, transformed_val_inputs, transformed_val_targets
         )
         logger.info(f"Validation data accuracy: {val_accuracy}")
 
